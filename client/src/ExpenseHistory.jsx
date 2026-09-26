@@ -1,28 +1,25 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
     Search,
     Filter,
+    Trash2,
     Receipt,
-    Utensils,
-    Car,
-    ShoppingBag,
-    FileText,
-    GraduationCap,
-    Gamepad2,
-    HeartPulse,
-    MoreHorizontal,
+    X,
 } from "lucide-react";
 
-function ExpenseHistory() {
+const ExpenseHistory = () => {
     const [expenses, setExpenses] = useState([]);
-    const [search, setSearch] = useState("");
-    const [category, setCategory] = useState("All");
-    const [loading, setLoading] = useState(true);
+    const [filteredExpenses, setFilteredExpenses] = useState([]);
 
+    const [searchTerm, setSearchTerm] = useState("");
+    const [categoryFilter, setCategoryFilter] = useState("All");
+    const [dateFilter, setDateFilter] = useState("All");
+
+    const token = localStorage.getItem("token");
+
+    // Fetch expenses
     const fetchExpenses = async () => {
         try {
-            const token = localStorage.getItem("token");
-
             const response = await fetch("/api/expenses", {
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -33,62 +30,137 @@ function ExpenseHistory() {
 
             if (response.ok) {
                 setExpenses(data);
+                setFilteredExpenses(data);
             }
         } catch (error) {
-            console.error("Error fetching expense history:", error);
-        } finally {
-            setLoading(false);
+            console.error("Error fetching expenses:", error);
         }
     };
 
     useEffect(() => {
-        fetchExpenses();
+        if (token) {
+            fetchExpenses();
+        }
     }, []);
 
-    const filteredExpenses = useMemo(() => {
-        return expenses.filter((expense) => {
-            const matchesCategory =
-                category === "All" || expense.category === category;
+    // Search + filters
+    useEffect(() => {
+        let result = [...expenses];
 
-            const text =
-                `${expense.category} ${expense.description || ""}`
-                    .toLowerCase();
+        // Search
+        if (searchTerm.trim() !== "") {
+            const search = searchTerm.toLowerCase();
 
-            const matchesSearch = text.includes(
-                search.toLowerCase()
+            result = result.filter((expense) => {
+                return (
+                    expense.description
+                        ?.toLowerCase()
+                        .includes(search) ||
+                    expense.category
+                        ?.toLowerCase()
+                        .includes(search) ||
+                    String(expense.amount).includes(search)
+                );
+            });
+        }
+
+        // Category filter
+        if (categoryFilter !== "All") {
+            result = result.filter(
+                (expense) => expense.category === categoryFilter
+            );
+        }
+
+        // Date filter
+        if (dateFilter !== "All") {
+            const today = new Date();
+
+            result = result.filter((expense) => {
+                const expenseDate = new Date(expense.date);
+
+                if (dateFilter === "Today") {
+                    return (
+                        expenseDate.toDateString() ===
+                        today.toDateString()
+                    );
+                }
+
+                if (dateFilter === "This Week") {
+                    const weekAgo = new Date();
+                    weekAgo.setDate(today.getDate() - 7);
+
+                    return expenseDate >= weekAgo;
+                }
+
+                if (dateFilter === "This Month") {
+                    return (
+                        expenseDate.getMonth() === today.getMonth() &&
+                        expenseDate.getFullYear() ===
+                        today.getFullYear()
+                    );
+                }
+
+                return true;
+            });
+        }
+
+        setFilteredExpenses(result);
+    }, [
+        searchTerm,
+        categoryFilter,
+        dateFilter,
+        expenses,
+    ]);
+
+    // Delete expense
+    const deleteExpense = async (id) => {
+        const confirmDelete = window.confirm(
+            "Are you sure you want to delete this expense?"
+        );
+
+        if (!confirmDelete) return;
+
+        try {
+            const response = await fetch(
+                `/api/expenses/${id}`,
+                {
+                    method: "DELETE",
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
             );
 
-            return matchesCategory && matchesSearch;
-        });
-    }, [expenses, search, category]);
-
-    const totalHistory = filteredExpenses.reduce(
-        (total, expense) =>
-            total + Number(expense.amount || 0),
-        0
-    );
-
-    const getIcon = (category) => {
-        const icons = {
-            Food: Utensils,
-            Travel: Car,
-            Shopping: ShoppingBag,
-            Bills: FileText,
-            Education: GraduationCap,
-            Entertainment: Gamepad2,
-            Health: HeartPulse,
-            Other: MoreHorizontal,
-        };
-
-        return icons[category] || MoreHorizontal;
+            if (response.ok) {
+                setExpenses((prev) =>
+                    prev.filter((expense) => expense._id !== id)
+                );
+            }
+        } catch (error) {
+            console.error("Error deleting expense:", error);
+        }
     };
 
-    const formatMoney = (amount) =>
-        new Intl.NumberFormat("en-IN", {
+    // Format money
+    const formatMoney = (amount) => {
+        return new Intl.NumberFormat("en-IN", {
             style: "currency",
             currency: "INR",
             maximumFractionDigits: 0,
         }).format(amount);
+    };
+
+    // Clear filters
+    const clearFilters = () => {
+        setSearchTerm("");
+        setCategoryFilter("All");
+        setDateFilter("All");
+    };
+
+    const hasFilters =
+        searchTerm !== "" ||
+        categoryFilter !== "All" ||
+        dateFilter !== "All";
 
     return (
         <section className="mt-8 rounded-2xl border border-slate-800 bg-slate-900 overflow-hidden">
@@ -99,90 +171,132 @@ function ExpenseHistory() {
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
 
                     <div>
-                        <h2 className="text-xl font-bold text-white">
+                        <h3 className="text-xl font-bold">
                             Expense History
-                        </h2>
+                        </h3>
 
                         <p className="text-sm text-slate-500 mt-1">
-                            View all your recorded expenses
+                            Search and manage your expense records
                         </p>
                     </div>
 
-                    <div className="text-right">
-                        <p className="text-xs text-slate-500">
-                            Filtered Total
-                        </p>
-
-                        <p className="text-xl font-bold text-emerald-400">
-                            {formatMoney(totalHistory)}
-                        </p>
+                    <div className="flex items-center gap-2 text-sm text-slate-400">
+                        <Receipt className="w-4 h-4" />
+                        {filteredExpenses.length} expenses
                     </div>
 
                 </div>
 
-                {/* SEARCH + FILTER */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-6">
+                {/* SEARCH + FILTERS */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 mt-6">
 
-                    <div className="relative">
+                    {/* SEARCH */}
+                    <div className="relative lg:col-span-2">
 
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
 
                         <input
                             type="text"
                             placeholder="Search expenses..."
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
-                            className="w-full pl-10 pr-4 py-3 rounded-xl bg-slate-800 border border-slate-700 text-white outline-none focus:border-emerald-500"
+                            value={searchTerm}
+                            onChange={(e) =>
+                                setSearchTerm(e.target.value)
+                            }
+                            className="w-full pl-10 pr-10 py-3 rounded-xl border border-slate-700 bg-slate-950 text-white placeholder-slate-500 outline-none focus:border-emerald-500 transition"
                         />
 
-                    </div>
-
-                    <div className="relative">
-
-                        <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-
-                        <select
-                            value={category}
-                            onChange={(e) => setCategory(e.target.value)}
-                            className="w-full pl-10 pr-4 py-3 rounded-xl bg-slate-800 border border-slate-700 text-white outline-none focus:border-emerald-500"
-                        >
-                            <option value="All">All Categories</option>
-                            <option value="Food">Food</option>
-                            <option value="Travel">Travel</option>
-                            <option value="Shopping">Shopping</option>
-                            <option value="Bills">Bills</option>
-                            <option value="Education">Education</option>
-                            <option value="Entertainment">Entertainment</option>
-                            <option value="Health">Health</option>
-                            <option value="Other">Other</option>
-                        </select>
+                        {searchTerm && (
+                            <button
+                                onClick={() => setSearchTerm("")}
+                                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white"
+                            >
+                                <X className="w-4 h-4" />
+                            </button>
+                        )}
 
                     </div>
+
+                    {/* CATEGORY */}
+                    <select
+                        value={categoryFilter}
+                        onChange={(e) =>
+                            setCategoryFilter(e.target.value)
+                        }
+                        className="px-4 py-3 rounded-xl border border-slate-700 bg-slate-950 text-white outline-none focus:border-emerald-500 transition"
+                    >
+                        <option value="All">All Categories</option>
+                        <option value="Food">Food</option>
+                        <option value="Travel">Travel</option>
+                        <option value="Shopping">Shopping</option>
+                        <option value="Bills">Bills</option>
+                        <option value="Education">Education</option>
+                        <option value="Entertainment">
+                            Entertainment
+                        </option>
+                        <option value="Health">Health</option>
+                        <option value="Other">Other</option>
+                    </select>
+
+                    {/* DATE */}
+                    <select
+                        value={dateFilter}
+                        onChange={(e) =>
+                            setDateFilter(e.target.value)
+                        }
+                        className="px-4 py-3 rounded-xl border border-slate-700 bg-slate-950 text-white outline-none focus:border-emerald-500 transition"
+                    >
+                        <option value="All">All Dates</option>
+                        <option value="Today">Today</option>
+                        <option value="This Week">This Week</option>
+                        <option value="This Month">This Month</option>
+                    </select>
 
                 </div>
+
+                {/* ACTIVE FILTERS */}
+                {hasFilters && (
+                    <div className="flex items-center justify-between mt-4">
+
+                        <div className="flex items-center gap-2 text-sm text-emerald-400">
+                            <Filter className="w-4 h-4" />
+                            Filters applied
+                        </div>
+
+                        <button
+                            onClick={clearFilters}
+                            className="text-sm text-slate-400 hover:text-white transition"
+                        >
+                            Clear filters
+                        </button>
+
+                    </div>
+                )}
 
             </div>
 
-            {/* CONTENT */}
-            {loading ? (
-
-                <div className="p-10 text-center text-slate-500">
-                    Loading expense history...
-                </div>
-
-            ) : filteredExpenses.length === 0 ? (
+            {/* EXPENSE LIST */}
+            {filteredExpenses.length === 0 ? (
 
                 <div className="p-12 text-center">
 
                     <Receipt className="w-12 h-12 mx-auto text-slate-700 mb-4" />
 
-                    <h3 className="font-semibold text-slate-300">
+                    <h4 className="font-semibold text-slate-300">
                         No expenses found
-                    </h3>
+                    </h4>
 
                     <p className="text-sm text-slate-500 mt-1">
-                        Try another search or category.
+                        Try changing your search or filters.
                     </p>
+
+                    {hasFilters && (
+                        <button
+                            onClick={clearFilters}
+                            className="mt-5 px-5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold transition"
+                        >
+                            Clear Filters
+                        </button>
+                    )}
 
                 </div>
 
@@ -190,58 +304,60 @@ function ExpenseHistory() {
 
                 <div className="divide-y divide-slate-800">
 
-                    {filteredExpenses.map((expense) => {
+                    {filteredExpenses.map((expense) => (
 
-                        const Icon = getIcon(expense.category);
+                        <div
+                            key={expense._id}
+                            className="p-5 flex items-center justify-between gap-4 hover:bg-slate-800/40 transition"
+                        >
 
-                        return (
-                            <div
-                                key={expense._id}
-                                className="p-5 flex items-center justify-between gap-4 hover:bg-slate-800/40 transition"
-                            >
+                            {/* EXPENSE INFO */}
+                            <div className="flex items-center gap-4 min-w-0">
 
-                                <div className="flex items-center gap-4">
-
-                                    <div className="w-11 h-11 rounded-xl bg-slate-800 flex items-center justify-center">
-                                        <Icon className="w-5 h-5 text-emerald-400" />
-                                    </div>
-
-                                    <div>
-
-                                        <h3 className="font-semibold text-white">
-                                            {expense.description ||
-                                                expense.category}
-                                        </h3>
-
-                                        <p className="text-sm text-slate-500">
-                                            {expense.category}
-                                        </p>
-
-                                        <p className="text-xs text-slate-600 mt-1">
-                                            {new Date(
-                                                expense.date
-                                            ).toLocaleDateString("en-IN", {
-                                                day: "2-digit",
-                                                month: "short",
-                                                year: "numeric",
-                                            })}
-                                        </p>
-
-                                    </div>
-
+                                <div className="w-11 h-11 rounded-xl bg-slate-800 flex items-center justify-center shrink-0">
+                                    <Receipt className="w-5 h-5 text-emerald-400" />
                                 </div>
 
-                                <div className="text-right">
+                                <div className="min-w-0">
 
-                                    <p className="font-bold text-emerald-400">
-                                        {formatMoney(expense.amount)}
+                                    <h4 className="font-semibold truncate">
+                                        {expense.description ||
+                                            expense.category}
+                                    </h4>
+
+                                    <p className="text-sm text-slate-500">
+                                        {expense.category} •{" "}
+                                        {new Date(
+                                            expense.date
+                                        ).toLocaleDateString("en-IN")}
                                     </p>
 
                                 </div>
 
                             </div>
-                        );
-                    })}
+
+                            {/* AMOUNT + DELETE */}
+                            <div className="flex items-center gap-4 shrink-0">
+
+                                <span className="font-bold text-emerald-400">
+                                    {formatMoney(expense.amount)}
+                                </span>
+
+                                <button
+                                    onClick={() =>
+                                        deleteExpense(expense._id)
+                                    }
+                                    title="Delete expense"
+                                    className="p-2 rounded-lg text-slate-500 hover:text-red-400 hover:bg-red-500/10 transition"
+                                >
+                                    <Trash2 className="w-4 h-4" />
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                    ))}
 
                 </div>
 
@@ -249,6 +365,6 @@ function ExpenseHistory() {
 
         </section>
     );
-}
+};
 
 export default ExpenseHistory;

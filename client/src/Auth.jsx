@@ -50,7 +50,7 @@ function Auth() {
             );
 
             setTimeout(() => {
-                window.location.href = "/";
+                window.location.href = "/dashboard";
             }, 500);
         } catch (error) {
             console.error(error);
