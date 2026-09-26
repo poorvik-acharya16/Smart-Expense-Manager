@@ -1,99 +1,140 @@
 # 💰 Smart Expense Manager
 
-A full-stack expense management application built using the **MERN stack** that helps users track, manage, and analyze their daily expenses through an easy-to-use dashboard.
+A full-stack MERN application for tracking personal expenses, managing monthly budgets, and analyzing spending patterns through interactive dashboards and reports.
 
-## 📌 About the Project
+## 🚀 Features
 
-Smart Expense Manager allows users to record their expenses, view expense history, and understand their spending patterns through visualizations.
+### 🔐 Authentication
 
-The application provides a simple dashboard where users can manage their financial records and monitor their spending.
+* User registration and login
+* Secure authentication using JWT
+* User-specific expense data
+* Logout functionality
 
-## ✨ Features
+### 💳 Expense Management
 
-* 🔐 User Registration and Login
-* 🔑 User Authentication
-* 💰 Add and manage expenses
-* 📋 View expense history
-* 📊 Weekly spending visualization
-* 📈 Expense analysis through dashboard
-* 🗂️ Categorized expense management
-* 🧭 Simple and responsive dashboard
-* 🚪 Secure logout
-* ☁️ MongoDB database integration
+* Add daily expenses
+* View expense history
+* Search expenses
+* Filter by category
+* Filter by date
+* Delete expenses
+* Track total spending
 
-## 🛠️ Technologies Used
+### 📊 Dashboard & Analytics
+
+* Total spending overview
+* Current month spending
+* Weekly spending chart
+* Monthly spending comparison
+* 6-month spending trend
+* Category-wise spending analysis
+* Smart spending insights
+* Interactive charts
+
+### 💰 Budget Management
+
+* Set monthly budget
+* Track budget usage
+* View remaining budget
+* Budget progress indicator
+* 80% budget warning
+* Budget exceeded warning
+* Daily spending limit
+
+### 📄 Monthly Reports
+
+* Select a specific month
+* Total monthly spending
+* Number of transactions
+* Average expense
+* Top spending category
+* Category-wise breakdown
+* Monthly transaction list
+* Print/export report
+
+### 🎨 User Interface
+
+* Modern responsive dashboard
+* Professional landing page
+* Login/Register page
+* Responsive design for different screen sizes
+* Clean and user-friendly interface
+
+## 🛠️ Tech Stack
 
 ### Frontend
 
 * React.js
-* JavaScript
-* HTML5
-* CSS3
 * Vite
+* Tailwind CSS
+* Recharts
+* Lucide React
 
 ### Backend
 
 * Node.js
 * Express.js
+* JWT Authentication
 
 ### Database
 
-* MongoDB
 * MongoDB Atlas
+* Mongoose
 
 ### Development Tools
 
-* Antigravity
+* Visual Studio Code
 * Git
 * GitHub
+* Antigravity AI
 
-## 📂 Project Structure
+## 📁 Project Structure
 
 ```text
-Smart-Expense-Manager/
+Smart Expense Manager/
 │
 ├── client/
-│   ├── public/
-│   └── src/
-│       ├── components/
-│       ├── services/
-│       ├── AddExpense.jsx
-│       ├── Auth.jsx
-│       ├── ExpenseHistory.jsx
-│       ├── ExpenseList.jsx
-│       ├── App.jsx
-│       └── main.jsx
+│   ├── src/
+│   │   ├── App.jsx
+│   │   ├── Welcome.jsx
+│   │   ├── Auth.jsx
+│   │   ├── AddExpense.jsx
+│   │   ├── ExpenseHistory.jsx
+│   │   ├── BudgetCard.jsx
+│   │   ├── BudgetChart.jsx
+│   │   ├── WeeklySpending.jsx
+│   │   ├── SpendingInsights.jsx
+│   │   ├── SpendingTrend.jsx
+│   │   ├── MonthlyExpenseReport.jsx
+│   │   └── services/
+│   │
+│   └── package.json
 │
 ├── server/
-│   ├── config/
 │   ├── controllers/
-│   ├── middleware/
 │   ├── models/
 │   ├── routes/
-│   └── server.js
+│   ├── middleware/
+│   ├── server.js
+│   └── package.json
 │
-├── .gitignore
 ├── package.json
 └── README.md
 ```
 
-## 🚀 Getting Started
+## ⚙️ Installation & Setup
 
-### 1. Clone the Repository
-
-```bash
-git clone https://github.com/poorvik-acharya16/Smart-Expense-Manager.git
-```
-
-### 2. Navigate to the Project
+### 1. Clone the repository
 
 ```bash
-cd Smart-Expense-Manager
+git clone YOUR_GITHUB_REPOSITORY_URL
+cd "Smart Expense Manager"
 ```
 
-### 3. Install Dependencies
+### 2. Install dependencies
 
-Install the main project dependencies:
+Install root dependencies:
 
 ```bash
 npm install
@@ -113,95 +154,80 @@ cd ../server
 npm install
 ```
 
-### 4. Configure Environment Variables
+### 3. Configure environment variables
 
 Create a `.env` file inside the `server` folder.
 
 Example:
 
 ```env
-MONGODB_URI=your_mongodb_connection_string
 PORT=5000
+MONGODB_URI=your_mongodb_connection_string
+JWT_SECRET=your_jwt_secret
 ```
 
-⚠️ **Important:** Never upload your `.env` file to GitHub because it may contain private database credentials or other secrets.
+**Do not upload your `.env` file or database password to GitHub.**
 
-### 5. Start the Backend
+### 4. Start the application
 
-From the `server` folder:
-
-```bash
-npm start
-```
-
-Or, depending on your package configuration:
+From the project root:
 
 ```bash
 npm run dev
 ```
 
-### 6. Start the Frontend
+The application will run at:
 
-Open another terminal:
-
-```bash
-cd client
-npm run dev
+```text
+Frontend: http://localhost:3000
+Backend:  http://localhost:5000
 ```
 
-The frontend will be available at the local URL provided by Vite.
+## 📊 Application Flow
 
-## 📊 Main Modules
+```text
+Welcome Page
+      ↓
+Login / Register
+      ↓
+Dashboard
+      ↓
+Add Expense
+      ↓
+Expense History
+      ↓
+Analytics & Reports
+      ↓
+Budget Management
+```
 
-### 🔐 Authentication
+## 🔮 Future Enhancements
 
-Users can register and log in to access their personal expense dashboard.
-
-### 💰 Expense Management
-
-Users can add and manage expenses with details such as amount, category, and description.
-
-### 📋 Expense History
-
-Users can view previously recorded expenses in an organized format.
-
-### 📊 Dashboard
-
-The dashboard provides an overview of spending and visual representations of expense data.
-
-### 📈 Weekly Spending Visualization
-
-Users can analyze their spending across different days of the week using visual charts.
+* Google Authentication
+* Email notifications
+* Advanced AI-based spending recommendations
+* Recurring expenses
+* Multiple budget categories
+* PDF report download
+* Expense visualization improvements
+* Cloud deployment
+* Mobile application
 
 ## 🔒 Security
 
-Sensitive configuration files such as `.env` are excluded from Git using `.gitignore`.
+Sensitive configuration such as MongoDB credentials and JWT secrets should be stored in environment variables and should never be committed to the repository.
 
-Database credentials, passwords, API keys, and other secrets should never be committed to the public repository.
+## 📌 Project Status
 
-## 🔮 Future Improvements
+🚧 **Actively developed**
 
-* Monthly and yearly expense reports
-* Budget planning and alerts
-* Export expenses to PDF/Excel
-* Advanced spending analytics
-* More visualization options
-* Mobile-friendly improvements
-* Deployment with a live demo
-* Email notifications
-* Improved financial insights
-
-## 🎯 Project Goal
-
-The goal of Smart Expense Manager is to provide users with a simple and convenient platform for recording expenses and understanding their spending habits.
+The project is being developed as a full-stack MERN application with expense tracking, budgeting, analytics, and reporting features.
 
 ## 👨‍💻 Author
 
 **Poorvik Acharya**
 
-GitHub:
-https://github.com/poorvik-acharya16
+Computer Science Engineering Student
 
----
 
 ⭐ If you find this project useful, consider giving the repository a star!
