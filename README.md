@@ -1,113 +1,207 @@
-# Smart Expense Manager (MERN)
+# 💰 Smart Expense Manager
 
-A modern full-stack MERN (MongoDB, Express, React, Node.js) application for personal expense tracking and financial analytics.
+A full-stack expense management application built using the **MERN stack** that helps users track, manage, and analyze their daily expenses through an easy-to-use dashboard.
 
-## Tech Stack
+## 📌 About the Project
 
-- **Frontend**: React 19, Vite, Tailwind CSS v4, Lucide Icons
-- **Backend**: Node.js, Express 4, Mongoose 8, CORS, Dotenv
-- **Database**: MongoDB (configured via Mongoose)
+Smart Expense Manager allows users to record their expenses, view expense history, and understand their spending patterns through visualizations.
 
----
+The application provides a simple dashboard where users can manage their financial records and monitor their spending.
 
-## Project Structure
+## ✨ Features
 
-```
-smart-expense-manager/
-├── package.json              # Root script runner (concurrently)
-├── .gitignore                # Global git ignore
-├── README.md                 # Project documentation
-├── client/                   # React + Vite Frontend
-│   ├── index.html            # Main HTML with Google Fonts
-│   ├── vite.config.js        # Vite config with Tailwind & API proxy
-│   ├── package.json          # Frontend dependencies & scripts
+* 🔐 User Registration and Login
+* 🔑 User Authentication
+* 💰 Add and manage expenses
+* 📋 View expense history
+* 📊 Weekly spending visualization
+* 📈 Expense analysis through dashboard
+* 🗂️ Categorized expense management
+* 🧭 Simple and responsive dashboard
+* 🚪 Secure logout
+* ☁️ MongoDB database integration
+
+## 🛠️ Technologies Used
+
+### Frontend
+
+* React.js
+* JavaScript
+* HTML5
+* CSS3
+* Vite
+
+### Backend
+
+* Node.js
+* Express.js
+
+### Database
+
+* MongoDB
+* MongoDB Atlas
+
+### Development Tools
+
+* Antigravity
+* Git
+* GitHub
+
+## 📂 Project Structure
+
+```text
+Smart-Expense-Manager/
+│
+├── client/
+│   ├── public/
 │   └── src/
-│       ├── main.jsx          # React app entry
-│       ├── App.jsx           # Responsive dashboard layout
-│       ├── index.css         # Tailwind CSS imports & theme
 │       ├── components/
-│       │   ├── Navbar.jsx    # Top navigation & live server pill
-│       │   ├── StatusCard.jsx # Health check & response viewer
-│       │   └── ArchitectureOverview.jsx # Stack & structure overview
-│       └── services/
-│           └── api.js        # Health check API service
-└── server/                   # Node.js + Express Backend
-    ├── server.js             # Express app entry & middleware
-    ├── .env                  # Environment variables (PORT, MONGO_URI)
-    ├── .env.example          # Environment template
-    ├── package.json          # Backend dependencies & scripts
-    ├── config/
-    │   └── db.js             # Mongoose DB connection logic
-    ├── controllers/
-    │   └── health.controller.js # GET /api/health controller
-    ├── routes/
-    │   ├── index.js          # Central API router (/api)
-    │   └── health.routes.js  # /api/health route
-    ├── models/
-    │   └── .gitkeep          # Mongoose schemas placeholder
-    └── middleware/
-        ├── errorHandler.js   # Centralized error handler
-        └── notFoundHandler.js# 404 handler
+│       ├── services/
+│       ├── AddExpense.jsx
+│       ├── Auth.jsx
+│       ├── ExpenseHistory.jsx
+│       ├── ExpenseList.jsx
+│       ├── App.jsx
+│       └── main.jsx
+│
+├── server/
+│   ├── config/
+│   ├── controllers/
+│   ├── middleware/
+│   ├── models/
+│   ├── routes/
+│   └── server.js
+│
+├── .gitignore
+├── package.json
+└── README.md
 ```
 
----
+## 🚀 Getting Started
 
-## Getting Started
+### 1. Clone the Repository
 
-### 1. Prerequisites
-- [Node.js](https://nodejs.org/) (v18+)
-- [MongoDB](https://www.mongodb.com/) (Local Community Server or MongoDB Atlas URI)
+```bash
+git clone https://github.com/poorvik-acharya16/Smart-Expense-Manager.git
+```
 
-### 2. Environment Setup
-The backend environment is configured in `server/.env`:
+### 2. Navigate to the Project
+
+```bash
+cd Smart-Expense-Manager
+```
+
+### 3. Install Dependencies
+
+Install the main project dependencies:
+
+```bash
+npm install
+```
+
+Install frontend dependencies:
+
+```bash
+cd client
+npm install
+```
+
+Install backend dependencies:
+
+```bash
+cd ../server
+npm install
+```
+
+### 4. Configure Environment Variables
+
+Create a `.env` file inside the `server` folder.
+
+Example:
+
 ```env
+MONGODB_URI=your_mongodb_connection_string
 PORT=5000
-MONGO_URI=mongodb://localhost:27017/smart-expense-manager
-NODE_ENV=development
 ```
 
-### 3. Installation
-To install dependencies across root, client, and server in one go:
+⚠️ **Important:** Never upload your `.env` file to GitHub because it may contain private database credentials or other secrets.
+
+### 5. Start the Backend
+
+From the `server` folder:
+
 ```bash
-npm run install:all
-```
-Or individually:
-```bash
-# In client/
-cd client && npm install
-
-# In server/
-cd ../server && npm install
+npm start
 ```
 
-### 4. Running the Application
+Or, depending on your package configuration:
 
-#### Option A: Run Both Concurrently (Recommended)
-From the root workspace directory:
 ```bash
 npm run dev
 ```
-- **Frontend**: http://localhost:3000
-- **Backend API**: http://localhost:5000
-- **Health Check**: http://localhost:5000/api/health
 
-#### Option B: Run Individually
-In separate terminal windows:
+### 6. Start the Frontend
+
+Open another terminal:
+
 ```bash
-# Terminal 1 - Backend
-npm run server
-# or: cd server && npm run dev
-
-# Terminal 2 - Frontend
-npm run client
-# or: cd client && npm run dev
+cd client
+npm run dev
 ```
+
+The frontend will be available at the local URL provided by Vite.
+
+## 📊 Main Modules
+
+### 🔐 Authentication
+
+Users can register and log in to access their personal expense dashboard.
+
+### 💰 Expense Management
+
+Users can add and manage expenses with details such as amount, category, and description.
+
+### 📋 Expense History
+
+Users can view previously recorded expenses in an organized format.
+
+### 📊 Dashboard
+
+The dashboard provides an overview of spending and visual representations of expense data.
+
+### 📈 Weekly Spending Visualization
+
+Users can analyze their spending across different days of the week using visual charts.
+
+## 🔒 Security
+
+Sensitive configuration files such as `.env` are excluded from Git using `.gitignore`.
+
+Database credentials, passwords, API keys, and other secrets should never be committed to the public repository.
+
+## 🔮 Future Improvements
+
+* Monthly and yearly expense reports
+* Budget planning and alerts
+* Export expenses to PDF/Excel
+* Advanced spending analytics
+* More visualization options
+* Mobile-friendly improvements
+* Deployment with a live demo
+* Email notifications
+* Improved financial insights
+
+## 🎯 Project Goal
+
+The goal of Smart Expense Manager is to provide users with a simple and convenient platform for recording expenses and understanding their spending habits.
+
+## 👨‍💻 Author
+
+**Poorvik Acharya**
+
+GitHub:
+https://github.com/poorvik-acharya16
 
 ---
 
-## API Endpoints
-
-| Method | Endpoint | Description | Sample Response |
-|--------|----------|-------------|-----------------|
-| `GET` | `/api/health` | Health verification | `{"success": true, "message": "Smart Expense Manager API is running"}` |
-| `GET` | `/` | API status index | `{"project": "Smart Expense Manager API", "status": "online", ...}` |
+⭐ If you find this project useful, consider giving the repository a star!
