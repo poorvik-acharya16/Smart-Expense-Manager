@@ -1,0 +1,28 @@
+{
+  "name": "smart-expense-manager",
+  "version": "1.0.0",
+  "description": "Full-Stack MERN Smart Expense Manager Application",
+  "scripts": {
+    "dev": "concurrently \"npm run dev --prefix server\" \"npm run dev --prefix client\"",
+    "start": "npm run start --prefix server",
+    "client": "npm run dev --prefix client",
+    "server": "npm run dev --prefix server",
+    "build:client": "npm run build --prefix client",
+    "test:db": "npm run test:db --prefix server",
+    "install:all": "npm install && npm install --prefix server && npm install --prefix client"
+  },
+  "keywords": [
+    "mern",
+    "expense-manager",
+    "react",
+    "express",
+    "mongodb",
+    "nodejs",
+    "tailwind"
+  ],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^9.2.4"
+  }
+}
