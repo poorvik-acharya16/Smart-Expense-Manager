@@ -1,233 +1,105 @@
 # 💰 Smart Expense Manager
 
-A full-stack MERN application for tracking personal expenses, managing monthly budgets, and analyzing spending patterns through interactive dashboards and reports.
+A full-stack MERN application for managing personal expenses, tracking spending, and viewing financial insights.
 
 ## 🚀 Features
 
-### 🔐 Authentication
+- User registration and login
+- Secure authentication using JWT
+- Add, view, and delete expenses
+- Expense history
+- Dashboard with spending summary
+- Monthly spending report
+- Weekly spending analysis
+- 6-month spending trend
+- Smart spending insights
+- Budget tracking
+- Responsive user interface
 
-* User registration and login
-* Secure authentication using JWT
-* User-specific expense data
-* Logout functionality
-
-### 💳 Expense Management
-
-* Add daily expenses
-* View expense history
-* Search expenses
-* Filter by category
-* Filter by date
-* Delete expenses
-* Track total spending
-
-### 📊 Dashboard & Analytics
-
-* Total spending overview
-* Current month spending
-* Weekly spending chart
-* Monthly spending comparison
-* 6-month spending trend
-* Category-wise spending analysis
-* Smart spending insights
-* Interactive charts
-
-### 💰 Budget Management
-
-* Set monthly budget
-* Track budget usage
-* View remaining budget
-* Budget progress indicator
-* 80% budget warning
-* Budget exceeded warning
-* Daily spending limit
-
-### 📄 Monthly Reports
-
-* Select a specific month
-* Total monthly spending
-* Number of transactions
-* Average expense
-* Top spending category
-* Category-wise breakdown
-* Monthly transaction list
-* Print/export report
-
-### 🎨 User Interface
-
-* Modern responsive dashboard
-* Professional landing page
-* Login/Register page
-* Responsive design for different screen sizes
-* Clean and user-friendly interface
-
-## 🛠️ Tech Stack
+## 🛠️ Technologies Used
 
 ### Frontend
-
-* React.js
-* Vite
-* Tailwind CSS
-* Recharts
-* Lucide React
+- React.js
+- JavaScript
+- Tailwind CSS
+- Lucide React
 
 ### Backend
+- Node.js
+- Express.js
+- MongoDB
+- Mongoose
+- JWT
+- bcrypt
 
-* Node.js
-* Express.js
-* JWT Authentication
+## 📂 Project Structure
 
-### Database
-
-* MongoDB Atlas
-* Mongoose
-
-### Development Tools
-
-* Visual Studio Code
-* Git
-* GitHub
-* Antigravity AI
-
-## 📁 Project Structure
-
-```text
-Smart Expense Manager/
-│
+Smart-Expense-Manager/
 ├── client/
-│   ├── src/
-│   │   ├── App.jsx
-│   │   ├── Welcome.jsx
-│   │   ├── Auth.jsx
-│   │   ├── AddExpense.jsx
-│   │   ├── ExpenseHistory.jsx
-│   │   ├── BudgetCard.jsx
-│   │   ├── BudgetChart.jsx
-│   │   ├── WeeklySpending.jsx
-│   │   ├── SpendingInsights.jsx
-│   │   ├── SpendingTrend.jsx
-│   │   ├── MonthlyExpenseReport.jsx
-│   │   └── services/
-│   │
-│   └── package.json
-│
+│   └── src/
 ├── server/
-│   ├── controllers/
 │   ├── models/
 │   ├── routes/
-│   ├── middleware/
-│   ├── server.js
-│   └── package.json
-│
-├── package.json
-└── README.md
-```
+│   └── server.js
+└── package.json
 
-## ⚙️ Installation & Setup
+## ⚙️ How to Run
 
 ### 1. Clone the repository
 
-```bash
-git clone YOUR_GITHUB_REPOSITORY_URL
-cd "Smart Expense Manager"
-```
+git clone <your-repository-url>
 
 ### 2. Install dependencies
 
-Install root dependencies:
-
-```bash
+cd Smart-Expense-Manager
 npm install
-```
 
-Install frontend dependencies:
-
-```bash
 cd client
 npm install
-```
 
-Install backend dependencies:
-
-```bash
 cd ../server
 npm install
-```
 
 ### 3. Configure environment variables
 
-Create a `.env` file inside the `server` folder.
+Create a `.env` file inside the `server` folder:
 
-Example:
-
-```env
-PORT=5000
 MONGODB_URI=your_mongodb_connection_string
 JWT_SECRET=your_jwt_secret
-```
-
-**Do not upload your `.env` file or database password to GitHub.**
+PORT=5000
 
 ### 4. Start the application
 
 From the project root:
 
-```bash
 npm run dev
-```
 
-The application will run at:
+Frontend:
+http://localhost:3000
 
-```text
-Frontend: http://localhost:3000
-Backend:  http://localhost:5000
-```
+Backend:
+http://localhost:5000
 
-## 📊 Application Flow
+## 📊 Dashboard
 
-```text
-Welcome Page
-      ↓
-Login / Register
-      ↓
-Dashboard
-      ↓
-Add Expense
-      ↓
-Expense History
-      ↓
-Analytics & Reports
-      ↓
-Budget Management
-```
+Add screenshots of your dashboard here.
 
-## 🔮 Future Enhancements
+## 📈 Analytics
 
-* Google Authentication
-* Email notifications
-* Advanced AI-based spending recommendations
-* Recurring expenses
-* Multiple budget categories
-* PDF report download
-* Expense visualization improvements
-* Cloud deployment
-* Mobile application
+Add screenshots of your analytics page here.
 
-## 🔒 Security
+## 💳 Expense Management
 
-Sensitive configuration such as MongoDB credentials and JWT secrets should be stored in environment variables and should never be committed to the repository.
+Add screenshots of your expense history here.
 
-## 📌 Project Status
+## 🔮 Future Improvements
 
-🚧 **Actively developed**
+- Expense category recommendations
+- Advanced financial reports
+- Export expenses to CSV/PDF
+- Deployment with a live URL
+- AI-powered spending recommendations
 
-The project is being developed as a full-stack MERN application with expense tracking, budgeting, analytics, and reporting features.
+## 👨‍💻 Developer
 
-## 👨‍💻 Author
-
-**Poorvik Acharya**
-
-Computer Science Engineering Student
-
-
-⭐ If you find this project useful, consider giving the repository a star!
+Poorvik Acharya
