@@ -108,7 +108,7 @@ const MonthlyExpenseReport = ({ expenses = [] }) => {
 
                         <div>
                             <h3 className="text-xl font-bold">
-                                Monthly Expense Report
+                                MONTHLY EXPENSE REPORT
                             </h3>
 
                             <p className="text-sm text-slate-500 mt-1">

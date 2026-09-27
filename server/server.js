@@ -1,58 +1,149 @@
-import expenseRoutes from "./routes/expenseRoutes.js";
+
+import dns from "dns";
+dns.setDefaultResultOrder("ipv4first");
+
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-import connectDB from "./config/db.js";
-import apiRoutes from "./routes/index.js";
-import authRoutes from "./routes/authRoutes.js";
-import { notFoundHandler } from "./middleware/notFoundHandler.js";
-import { errorHandler } from "./middleware/errorHandler.js";
+import mongoose from "mongoose";
 
-// Load environment variables
+import expenseRoutes from "./routes/expenseRoutes.js";
+import authRoutes from "./routes/authRoutes.js";
+
 dotenv.config();
 
-// Initialize Express app
 const app = express();
-const PORT = process.env.PORT || 5000;
 
-// Connect to MongoDB
-connectDB();
+// ============================================
+// CORS
+// ============================================
 
-// Core Middleware
-app.use(cors());
+app.use(
+  cors({
+    origin: [
+      "http://localhost:3000",
+      "http://localhost:3001",
+      "http://localhost:3002",
+    ],
+    credentials: true,
+  })
+);
+
+// ============================================
+// MIDDLEWARE
+// ============================================
+
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
 
-// Authentication Routes
-app.use("/api/auth", authRoutes);
-app.use("/api/expenses", expenseRoutes);
+app.use(
+  express.urlencoded({
+    extended: true,
+  })
+);
 
-// Root route
+// ============================================
+// HOME ROUTE
+// ============================================
+
 app.get("/", (req, res) => {
-  res.json({
-    project: "Smart Expense Manager API",
-    status: "online",
-    healthCheck: "/api/health",
+  res.status(200).json({
+    message:
+      "Smart Expense Manager API is running",
   });
 });
 
-// API Routes
-app.use("/api", apiRoutes);
+// ============================================
+// HEALTH CHECK
+// ============================================
 
-// Error Handling Middleware
-app.use(notFoundHandler);
-app.use(errorHandler);
-
-// Start server
-app.listen(PORT, () => {
-  console.log(
-    `[Server] Smart Expense Manager API running in ${process.env.NODE_ENV || "development"
-    } mode on port ${PORT}`
-  );
-
-  console.log(
-    `[Server] Health Check available at: http://localhost:${PORT}/api/health`
-  );
+app.get("/api/health", (req, res) => {
+  res.status(200).json({
+    status: "OK",
+    message:
+      "Smart Expense Manager API is healthy",
+    mongodb:
+      mongoose.connection.readyState === 1
+        ? "connected"
+        : "disconnected",
+  });
 });
 
-export default app;
+// ============================================
+// AUTH ROUTES
+// ============================================
+
+app.use("/api/auth", authRoutes);
+
+// ============================================
+// EXPENSE ROUTES
+// ============================================
+
+app.use("/api/expenses", expenseRoutes);
+
+// ============================================
+// MONGODB CONNECTION
+// ============================================
+
+const MONGODB_URI = process.env.MONGODB_URI;
+
+if (!MONGODB_URI) {
+  console.error(
+    "[MongoDB] ERROR: MONGODB_URI is missing from .env"
+  );
+} else {
+  mongoose
+    .connect(MONGODB_URI)
+    .then(() => {
+      console.log(
+        "================================"
+      );
+
+      console.log(
+        "[MongoDB] Connected successfully to MongoDB Atlas!"
+      );
+
+      console.log(
+        "[MongoDB] Database Name:",
+        mongoose.connection.name
+      );
+
+      console.log(
+        "[MongoDB] Host:",
+        mongoose.connection.host
+      );
+
+      console.log(
+        "================================"
+      );
+    })
+    .catch((error) => {
+      console.error(
+        "================================"
+      );
+
+      console.error(
+        "[MongoDB] Connection Error:",
+        error.message
+      );
+
+      console.error(
+        "================================"
+      );
+    });
+}
+
+// ============================================
+// SERVER
+// ============================================
+
+const PORT = process.env.PORT || 5000;
+
+app.listen(PORT, () => {
+  console.log(
+    `[Server] Smart Expense Manager API running in development mode on port ${PORT}`
+  );
+
+  console.log(
+    `[Server] Health Check: http://localhost:${PORT}/api/health`
+  );
+});

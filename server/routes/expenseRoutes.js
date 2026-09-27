@@ -1,79 +1,120 @@
 import express from "express";
-import jwt from "jsonwebtoken";
 import Expense from "../models/Expense.js";
 
 const router = express.Router();
 
-// Middleware to verify JWT
-const protect = (req, res, next) => {
+// ============================================
+// GET ALL EXPENSES
+// ============================================
+router.get("/", async (req, res) => {
     try {
-        const authHeader = req.headers.authorization;
+        console.log("GET /api/expenses");
 
-        if (!authHeader || !authHeader.startsWith("Bearer ")) {
-            return res.status(401).json({
-                message: "Not authorized",
-            });
-        }
+        const expenses = await Expense.find()
+            .sort({ createdAt: -1 });
 
-        const token = authHeader.split(" ")[1];
+        console.log("EXPENSES FOUND:", expenses.length);
+        console.log("EXPENSE DATA:", expenses);
 
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-        req.userId = decoded.userId;
-
-        next();
+        res.status(200).json(expenses);
     } catch (error) {
-        return res.status(401).json({
-            message: "Invalid or expired token",
-        });
-    }
-};
-
-// ADD EXPENSE
-router.post("/", protect, async (req, res) => {
-    try {
-        const { amount, category, description, date } = req.body;
-
-        if (!amount || !category) {
-            return res.status(400).json({
-                message: "Amount and category are required",
-            });
-        }
-
-        const expense = await Expense.create({
-            user: req.userId,
-            amount,
-            category,
-            description,
-            date,
-        });
-
-        res.status(201).json({
-            message: "Expense added successfully",
-            expense,
-        });
-    } catch (error) {
-        console.error("Add expense error:", error);
+        console.error("GET EXPENSE ERROR:", error);
 
         res.status(500).json({
-            message: "Server error while adding expense",
+            message: "Failed to fetch expenses",
+            error: error.message,
         });
     }
 });
 
-// GET USER EXPENSES
-router.get("/", protect, async (req, res) => {
-    try {
-        const expenses = await Expense.find({
-            user: req.userId,
-        }).sort({ date: -1 });
+// ============================================
+// ADD EXPENSE
+// ============================================
+router.post("/", async (req, res) => {
+    console.log("================================");
+    console.log("POST /api/expenses");
+    console.log("REQUEST BODY:", req.body);
+    console.log("================================");
 
-        res.json(expenses);
+    try {
+        const {
+            user,
+            description,
+            amount,
+            category,
+            date,
+        } = req.body;
+
+        console.log("USER RECEIVED:", user);
+
+        if (!user) {
+            return res.status(400).json({
+                message: "User ID is missing",
+            });
+        }
+
+        const expense = new Expense({
+            user,
+            description: description.trim(),
+            amount: Number(amount),
+            category,
+            date: date || new Date(),
+        });
+
+        console.log(
+            "EXPENSE DATA BEFORE SAVE:",
+            expense
+        );
+
+        const savedExpense = await expense.save();
+
+        console.log(
+            "EXPENSE SAVED:",
+            savedExpense
+        );
+
+        res.status(201).json({
+            message: "Expense added successfully",
+            expense: savedExpense,
+        });
     } catch (error) {
-        console.error("Get expenses error:", error);
+        console.error("ADD EXPENSE ERROR:", error);
 
         res.status(500).json({
-            message: "Server error while fetching expenses",
+            message: error.message,
+            error: error.message,
+        });
+    }
+});
+
+// ============================================
+// DELETE EXPENSE
+// ============================================
+router.delete("/:id", async (req, res) => {
+    try {
+        const deletedExpense =
+            await Expense.findByIdAndDelete(
+                req.params.id
+            );
+
+        if (!deletedExpense) {
+            return res.status(404).json({
+                message: "Expense not found",
+            });
+        }
+
+        res.status(200).json({
+            message: "Expense deleted successfully",
+            expense: deletedExpense,
+        });
+    } catch (error) {
+        console.error(
+            "DELETE EXPENSE ERROR:",
+            error
+        );
+
+        res.status(500).json({
+            message: error.message,
         });
     }
 });

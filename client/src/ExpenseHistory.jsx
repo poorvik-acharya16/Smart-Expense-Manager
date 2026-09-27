@@ -15,12 +15,23 @@ const ExpenseHistory = () => {
     const [categoryFilter, setCategoryFilter] = useState("All");
     const [dateFilter, setDateFilter] = useState("All");
 
+    const [deletingId, setDeletingId] = useState(null);
+
     const token = localStorage.getItem("token");
 
-    // Fetch expenses
+    // =========================================
+    // FETCH EXPENSES
+    // =========================================
+
     const fetchExpenses = async () => {
         try {
+            if (!token) {
+                setExpenses([]);
+                return;
+            }
+
             const response = await fetch("/api/expenses", {
+                method: "GET",
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
@@ -28,26 +39,38 @@ const ExpenseHistory = () => {
 
             const data = await response.json();
 
-            if (response.ok) {
+            if (!response.ok) {
+                console.error("Failed to fetch expenses:", data);
+                return;
+            }
+
+            if (Array.isArray(data)) {
                 setExpenses(data);
-                setFilteredExpenses(data);
+            } else {
+                console.error("Unexpected response:", data);
+                setExpenses([]);
             }
         } catch (error) {
             console.error("Error fetching expenses:", error);
         }
     };
 
+    // =========================================
+    // INITIAL LOAD
+    // =========================================
+
     useEffect(() => {
-        if (token) {
-            fetchExpenses();
-        }
+        fetchExpenses();
     }, []);
 
-    // Search + filters
+    // =========================================
+    // SEARCH + FILTERS
+    // =========================================
+
     useEffect(() => {
         let result = [...expenses];
 
-        // Search
+        // SEARCH
         if (searchTerm.trim() !== "") {
             const search = searchTerm.toLowerCase();
 
@@ -64,14 +87,15 @@ const ExpenseHistory = () => {
             });
         }
 
-        // Category filter
+        // CATEGORY FILTER
         if (categoryFilter !== "All") {
             result = result.filter(
-                (expense) => expense.category === categoryFilter
+                (expense) =>
+                    expense.category === categoryFilter
             );
         }
 
-        // Date filter
+        // DATE FILTER
         if (dateFilter !== "All") {
             const today = new Date();
 
@@ -87,14 +111,17 @@ const ExpenseHistory = () => {
 
                 if (dateFilter === "This Week") {
                     const weekAgo = new Date();
-                    weekAgo.setDate(today.getDate() - 7);
+                    weekAgo.setDate(
+                        today.getDate() - 7
+                    );
 
                     return expenseDate >= weekAgo;
                 }
 
                 if (dateFilter === "This Month") {
                     return (
-                        expenseDate.getMonth() === today.getMonth() &&
+                        expenseDate.getMonth() ===
+                        today.getMonth() &&
                         expenseDate.getFullYear() ===
                         today.getFullYear()
                     );
@@ -112,36 +139,101 @@ const ExpenseHistory = () => {
         expenses,
     ]);
 
-    // Delete expense
+    // =========================================
+    // DELETE EXPENSE
+    // =========================================
+
     const deleteExpense = async (id) => {
         const confirmDelete = window.confirm(
             "Are you sure you want to delete this expense?"
         );
 
-        if (!confirmDelete) return;
+        if (!confirmDelete) {
+            return;
+        }
 
         try {
+            setDeletingId(id);
+
+            if (!token) {
+                alert("Your session has expired. Please login again.");
+                window.location.href = "/auth";
+                return;
+            }
+
+            console.log("Deleting expense:", id);
+
             const response = await fetch(
                 `/api/expenses/${id}`,
                 {
                     method: "DELETE",
                     headers: {
                         Authorization: `Bearer ${token}`,
+                        "Content-Type": "application/json",
                     },
                 }
             );
 
-            if (response.ok) {
-                setExpenses((prev) =>
-                    prev.filter((expense) => expense._id !== id)
-                );
+            let data = {};
+
+            try {
+                data = await response.json();
+            } catch {
+                data = {};
             }
+
+            console.log(
+                "Delete response:",
+                response.status,
+                data
+            );
+
+            if (!response.ok) {
+                console.error(
+                    "Delete failed:",
+                    response.status,
+                    data
+                );
+
+                alert(
+                    data.message ||
+                    data.error ||
+                    `Unable to delete expense. Server returned ${response.status}.`
+                );
+
+                return;
+            }
+
+            // Remove deleted expense from the UI
+            setExpenses((prevExpenses) =>
+                prevExpenses.filter(
+                    (expense) => expense._id !== id
+                )
+            );
+
+            console.log(
+                "Expense deleted successfully:",
+                id
+            );
+
         } catch (error) {
-            console.error("Error deleting expense:", error);
+            console.error(
+                "Error deleting expense:",
+                error
+            );
+
+            alert(
+                "Unable to delete the expense. Please check that the backend server is running."
+            );
+        } finally {
+            setDeletingId(null);
         }
     };
 
-    // Format money
+    // =========================================
+    // FORMAT MONEY
+    // =========================================
+
     const formatMoney = (amount) => {
         return new Intl.NumberFormat("en-IN", {
             style: "currency",
@@ -150,7 +242,10 @@ const ExpenseHistory = () => {
         }).format(amount);
     };
 
-    // Clear filters
+    // =========================================
+    // CLEAR FILTERS
+    // =========================================
+
     const clearFilters = () => {
         setSearchTerm("");
         setCategoryFilter("All");
@@ -162,15 +257,21 @@ const ExpenseHistory = () => {
         categoryFilter !== "All" ||
         dateFilter !== "All";
 
+    // =========================================
+    // UI
+    // =========================================
+
     return (
-        <section className="mt-8 rounded-2xl border border-slate-800 bg-slate-900 overflow-hidden">
+        <section className="rounded-2xl border border-slate-800 bg-slate-900 overflow-hidden">
 
             {/* HEADER */}
-            <div className="p-6 border-b border-slate-800">
+
+            <div className="p-5 border-b border-slate-800">
 
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
 
                     <div>
+
                         <h3 className="text-xl font-bold">
                             Expense History
                         </h3>
@@ -178,19 +279,25 @@ const ExpenseHistory = () => {
                         <p className="text-sm text-slate-500 mt-1">
                             Search and manage your expense records
                         </p>
+
                     </div>
 
                     <div className="flex items-center gap-2 text-sm text-slate-400">
+
                         <Receipt className="w-4 h-4" />
+
                         {filteredExpenses.length} expenses
+
                     </div>
 
                 </div>
 
                 {/* SEARCH + FILTERS */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 mt-6">
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 mt-5">
 
                     {/* SEARCH */}
+
                     <div className="relative lg:col-span-2">
 
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
@@ -207,7 +314,9 @@ const ExpenseHistory = () => {
 
                         {searchTerm && (
                             <button
-                                onClick={() => setSearchTerm("")}
+                                onClick={() =>
+                                    setSearchTerm("")
+                                }
                                 className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white"
                             >
                                 <X className="w-4 h-4" />
@@ -217,49 +326,98 @@ const ExpenseHistory = () => {
                     </div>
 
                     {/* CATEGORY */}
+
                     <select
                         value={categoryFilter}
                         onChange={(e) =>
-                            setCategoryFilter(e.target.value)
+                            setCategoryFilter(
+                                e.target.value
+                            )
                         }
                         className="px-4 py-3 rounded-xl border border-slate-700 bg-slate-950 text-white outline-none focus:border-emerald-500 transition"
                     >
-                        <option value="All">All Categories</option>
-                        <option value="Food">Food</option>
-                        <option value="Travel">Travel</option>
-                        <option value="Shopping">Shopping</option>
-                        <option value="Bills">Bills</option>
-                        <option value="Education">Education</option>
+
+                        <option value="All">
+                            All Categories
+                        </option>
+
+                        <option value="Food">
+                            Food
+                        </option>
+
+                        <option value="Travel">
+                            Travel
+                        </option>
+
+                        <option value="Shopping">
+                            Shopping
+                        </option>
+
+                        <option value="Bills">
+                            Bills
+                        </option>
+
+                        <option value="Education">
+                            Education
+                        </option>
+
                         <option value="Entertainment">
                             Entertainment
                         </option>
-                        <option value="Health">Health</option>
-                        <option value="Other">Other</option>
+
+                        <option value="Health">
+                            Health
+                        </option>
+
+                        <option value="Other">
+                            Other
+                        </option>
+
                     </select>
 
                     {/* DATE */}
+
                     <select
                         value={dateFilter}
                         onChange={(e) =>
-                            setDateFilter(e.target.value)
+                            setDateFilter(
+                                e.target.value
+                            )
                         }
                         className="px-4 py-3 rounded-xl border border-slate-700 bg-slate-950 text-white outline-none focus:border-emerald-500 transition"
                     >
-                        <option value="All">All Dates</option>
-                        <option value="Today">Today</option>
-                        <option value="This Week">This Week</option>
-                        <option value="This Month">This Month</option>
+
+                        <option value="All">
+                            All Dates
+                        </option>
+
+                        <option value="Today">
+                            Today
+                        </option>
+
+                        <option value="This Week">
+                            This Week
+                        </option>
+
+                        <option value="This Month">
+                            This Month
+                        </option>
+
                     </select>
 
                 </div>
 
                 {/* ACTIVE FILTERS */}
+
                 {hasFilters && (
                     <div className="flex items-center justify-between mt-4">
 
                         <div className="flex items-center gap-2 text-sm text-emerald-400">
+
                             <Filter className="w-4 h-4" />
+
                             Filters applied
+
                         </div>
 
                         <button
@@ -275,9 +433,10 @@ const ExpenseHistory = () => {
             </div>
 
             {/* EXPENSE LIST */}
+
             {filteredExpenses.length === 0 ? (
 
-                <div className="p-12 text-center">
+                <div className="p-10 text-center">
 
                     <Receipt className="w-12 h-12 mx-auto text-slate-700 mb-4" />
 
@@ -308,14 +467,17 @@ const ExpenseHistory = () => {
 
                         <div
                             key={expense._id}
-                            className="p-5 flex items-center justify-between gap-4 hover:bg-slate-800/40 transition"
+                            className="p-4 flex items-center justify-between gap-4 hover:bg-slate-800/40 transition"
                         >
 
                             {/* EXPENSE INFO */}
+
                             <div className="flex items-center gap-4 min-w-0">
 
-                                <div className="w-11 h-11 rounded-xl bg-slate-800 flex items-center justify-center shrink-0">
+                                <div className="w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center shrink-0">
+
                                     <Receipt className="w-5 h-5 text-emerald-400" />
+
                                 </div>
 
                                 <div className="min-w-0">
@@ -326,10 +488,15 @@ const ExpenseHistory = () => {
                                     </h4>
 
                                     <p className="text-sm text-slate-500">
+
                                         {expense.category} •{" "}
+
                                         {new Date(
                                             expense.date
-                                        ).toLocaleDateString("en-IN")}
+                                        ).toLocaleDateString(
+                                            "en-IN"
+                                        )}
+
                                     </p>
 
                                 </div>
@@ -337,20 +504,35 @@ const ExpenseHistory = () => {
                             </div>
 
                             {/* AMOUNT + DELETE */}
-                            <div className="flex items-center gap-4 shrink-0">
+
+                            <div className="flex items-center gap-3 shrink-0">
 
                                 <span className="font-bold text-emerald-400">
-                                    {formatMoney(expense.amount)}
+                                    {formatMoney(
+                                        expense.amount
+                                    )}
                                 </span>
 
                                 <button
                                     onClick={() =>
-                                        deleteExpense(expense._id)
+                                        deleteExpense(
+                                            expense._id
+                                        )
+                                    }
+                                    disabled={
+                                        deletingId ===
+                                        expense._id
                                     }
                                     title="Delete expense"
-                                    className="p-2 rounded-lg text-slate-500 hover:text-red-400 hover:bg-red-500/10 transition"
+                                    className={`p-2 rounded-lg transition ${deletingId ===
+                                            expense._id
+                                            ? "text-slate-700 cursor-not-allowed"
+                                            : "text-slate-500 hover:text-red-400 hover:bg-red-500/10"
+                                        }`}
                                 >
+
                                     <Trash2 className="w-4 h-4" />
+
                                 </button>
 
                             </div>
